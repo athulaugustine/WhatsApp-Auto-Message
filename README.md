@@ -28,7 +28,7 @@ Usage
 
   Run the application:
     
-    streamlit run your_script_name.py
+    streamlit run streamlit_app.py
 
 Open the application in your browser and follow the instructions to upload your customer Excel file, input your message, and send bulk messages.
 
