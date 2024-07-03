@@ -1,2 +1,41 @@
-# WhatsApp-Auto-Message
-WhatsApp Auto Message is a Python app using Selenium and Streamlit to send bulk WhatsApp messages, including text and images. Ideal for businesses, it features a user-friendly UI and automated messaging. Easily customizable and efficient for automating WhatsApp communications.
+# WhatsApp Auto Message
+
+WhatsApp Auto Message is a Python-based application designed to send bulk messages, including both text and images, to WhatsApp users. The application leverages Selenium for browser automation and features a user-friendly interface built with Streamlit. This tool is ideal for businesses and individuals looking to automate their WhatsApp communications efficiently.
+
+## Features
+
+- **Bulk Messaging**: Send messages to multiple contacts at once.
+- **Text and Image Support**: Send both text messages and images seamlessly.
+- **User-Friendly UI**: Easy-to-use interface built with Streamlit.
+- **Automated Sending**: Automate your WhatsApp messaging using Selenium.
+- **Customizable**: Modify and extend the functionality to suit your needs.
+
+## Installation
+
+Clone the repository:
+
+     git clone https://github.com/yourusername/whatsapp-auto-message.git
+   
+Navigate to the project directory:
+
+    cd whatsapp-auto-message
+
+Install the required dependencies:
+
+    pip install -r requirements.txt
+
+Usage
+
+  Run the application:
+    
+    streamlit run your_script_name.py
+
+Open the application in your browser and follow the instructions to upload your customer Excel file, input your message, and send bulk messages.
+
+Dependencies
+
+    Python 3.7+
+    Selenium
+    Streamlit
+    Pandas
+    PyAutoGUI
