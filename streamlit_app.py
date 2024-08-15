@@ -41,24 +41,25 @@ def send_whatsapp_message(driver, contact_number, message, media_paths):
         EC.element_to_be_clickable((By.XPATH, '//div[@title="New chat"]'))
     )
     new_chat_btn.click()  # Search name or number
-    time.sleep(2)
+    time.sleep(3)
     search_box = driver.find_element(By.XPATH, '//div[@aria-label="Search name or number"]')
+    time.sleep(3)
     search_box.send_keys(contact_number)
-    time.sleep(2)
+    time.sleep(3)
     search_box.send_keys(Keys.ENTER)
-    time.sleep(2)  # Wait for the chat to open
+    time.sleep(3)  # Wait for the chat to open
 
     if media_paths:
         for media_path in media_paths:
             attachment_btn = driver.find_element(By.XPATH, '//div[@title="Attach"]')
             attachment_btn.click()
-            time.sleep(2)
+            time.sleep(3)
             media_type = "image" if media_path.lower().endswith(("jpg", "jpeg", "png")) else "video"
 
             file_input = driver.find_element(By.XPATH, '//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]'.format(media_type))
             file_input.send_keys(media_path)
             if media_type=="image":
-                time.sleep(2)  # Wait for the file to be uploaded
+                time.sleep(3)  # Wait for the file to be uploaded
             else:
                 time.sleep(10)
             send_btn = driver.find_element(By.XPATH, '//div[@aria-label="Send"]')
@@ -132,9 +133,11 @@ if customer_excel:
             if row['Select']:
                 contact_number = row['Contact No.']
                 try:
+                    driver.refresh()
+                    time.sleep(5)
                     send_whatsapp_message(driver, contact_number, txt.format(customer_name=row['Customer Name']), media_paths)
                 except Exception as e:
-                    st.write(f"Failed to send message to {contact_number}: {e}")
+                    st.write(f"Failed to send message to {contact_number} ({row['Customer Name']})")
         driver.quit()
         st.success("Done!")
 
