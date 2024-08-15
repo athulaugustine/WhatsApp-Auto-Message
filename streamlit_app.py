@@ -72,7 +72,7 @@ def send_whatsapp_message(driver, contact_number, message, media_paths):
         time.sleep(3)  # Wait for the message to be sent
 
 # File uploader for Excel file
-customer_excel = st.file_uploader("Upload customer Excel file", type=["xlsx"])
+customer_excel = st.file_uploader("Upload customer Excel file, must have the identical columns ['Customer ID', 'Customer Name', 'Contact No.']", type=["xlsx"])
 
 if customer_excel:
     # Read the Excel file
