@@ -8,7 +8,7 @@ WhatsApp Auto Message is a Python-based application designed to send bulk messag
 ## Features
 
 - **Bulk Messaging**: Send messages to multiple contacts at once.
-- **Text and Image Support**: Send both text messages and images seamlessly.
+- **Image and Video Support**: Send multiple text, image and video messages seamlessly.
 - **User-Friendly UI**: Easy-to-use interface built with Streamlit.
 - **Automated Sending**: Automate your WhatsApp messaging using Selenium.
 - **Customizable**: Modify and extend the functionality to suit your needs.
