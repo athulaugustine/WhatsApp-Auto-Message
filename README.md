@@ -41,4 +41,3 @@ Dependencies
     Selenium
     Streamlit
     Pandas
-    PyAutoGUI
