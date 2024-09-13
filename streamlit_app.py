@@ -10,7 +10,6 @@ import os
 from datetime import datetime
 import tempfile
 
-
 def open_image_in_viewer(image_path):
     os.startfile(image_path)
 
@@ -24,55 +23,67 @@ def save_file_to_temp_directory(file, temp_dir):
     except Exception as e:
         st.error(f"Error saving file {file.name}: {e}")
         return None
-    
+
 def is_logged_in(driver):
     try:
         # Check for an element that is only present after login
-        search_box = driver.find_element("xpath", '//div[@aria-label="Search"]')
-        if search_box:
-            return True
-        else:
-            return False
+        search_box = driver.find_element(By.XPATH, '//button[@aria-label="Search or start new chat"]')
+        return search_box is not None
     except:
         return False    
 
 def send_whatsapp_message(driver, contact_number, message, media_paths):
-    new_chat_btn = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//div[@title="New chat"]'))
-    )
-    new_chat_btn.click()  # Search name or number
-    time.sleep(3)
-    search_box = driver.find_element(By.XPATH, '//div[@aria-label="Search name or number"]')
-    time.sleep(3)
-    search_box.send_keys(contact_number)
-    time.sleep(3)
-    search_box.send_keys(Keys.ENTER)
-    time.sleep(3)  # Wait for the chat to open
+    try:
+        # Wait for the 'New chat' button to be clickable
+        new_chat_btn = WebDriverWait(driver, 30).until( 
+            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Search or start new chat"]'))
+        )
+        new_chat_btn.click()  # Click on 'New chat'
+        time.sleep(3)
 
-    if media_paths:
-        for media_path in media_paths:
-            attachment_btn = driver.find_element(By.XPATH, '//div[@title="Attach"]')
-            attachment_btn.click()
-            time.sleep(3)
-            media_type = "image" if media_path.lower().endswith(("jpg", "jpeg", "png")) else "video"
+        # Wait for the search box to be visible and interactable
+        search_box = WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.XPATH, '//div[@contenteditable="true" and @data-tab="3"]'))
+        )
+        search_box.send_keys(contact_number)  # Input the contact number
+        time.sleep(2)
+        search_box.send_keys(Keys.ENTER)  # Select the contact
+        time.sleep(3)  # Wait for the chat to open
 
-            file_input = driver.find_element(By.XPATH, '//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]'.format(media_type))
-            file_input.send_keys(media_path)
-            if media_type=="image":
-                time.sleep(3)  # Wait for the file to be uploaded
-            else:
-                time.sleep(10)
-            send_btn = driver.find_element(By.XPATH, '//div[@aria-label="Send"]')
-            send_btn.click()
-            time.sleep(5)
-    if message:
-        message_box = driver.find_element(By.XPATH, '//div[@aria-placeholder="Type a message"]')
-        message_box.send_keys(message)
-        message_box.send_keys(Keys.ENTER)
-        time.sleep(3)  # Wait for the message to be sent
+        if media_paths:
+            for media_path in media_paths:
+                attachment_btn = WebDriverWait(driver, 30).until(
+                    EC.element_to_be_clickable((By.XPATH, '//div[@title="Attach"]'))
+                )
+                attachment_btn.click()
+                time.sleep(3)
+
+                media_type = "image" if media_path.lower().endswith(("jpg", "jpeg", "png")) else "video"
+
+                file_input = driver.find_element(By.XPATH, '//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]')
+                file_input.send_keys(media_path)
+                time.sleep(10 if media_type == "video" else 3)  # Wait for the file to be uploaded
+                
+                send_btn = WebDriverWait(driver, 30).until(
+                    EC.element_to_be_clickable((By.XPATH, '//div[@aria-label="Send"]'))
+                )
+                send_btn.click()
+                time.sleep(5)
+
+        if message:
+            message_box = driver.find_element(By.XPATH, '//div[@aria-placeholder="Type a message"]')
+            message_box.send_keys(message)
+            message_box.send_keys(Keys.ENTER)
+            time.sleep(3)  # Wait for the message to be sent
+
+    except Exception as e:
+        st.error(f"Error sending message to {contact_number}: {e}")
 
 # File uploader for Excel file
-customer_excel = st.file_uploader("Upload customer Excel file, must have the identical columns ['Customer ID', 'Customer Name', 'Contact No.']", type=["xlsx"])
+customer_excel = st.file_uploader(
+    "Upload customer Excel file, must have the identical columns ['Customer ID', 'Customer Name', 'Contact No.']", 
+    type=["xlsx"]
+)
 
 if customer_excel:
     # Read the Excel file
@@ -101,14 +112,15 @@ if customer_excel:
     )
     try:
         st.write(txt.format(customer_name=selected_dataframe['Customer Name'][0]))
-    except:
-        st.write("Repalce '{' single curly braces with '{{' or fix formatting errors.")
+    except IndexError:
+        st.write("Replace '{' single curly braces with '{{' or fix formatting errors.")
+
     # Create a temporary directory with a datetime stamp
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     temp_dir = tempfile.mkdtemp(prefix=f"media_{timestamp}_")
     
     # File uploader for image file
-    media_files = st.file_uploader("Upload media to send", type=["jpg", "jpeg", "png","mp4"],accept_multiple_files=True)
+    media_files = st.file_uploader("Upload media to send", type=["jpg", "jpeg", "png", "mp4"], accept_multiple_files=True)
     media_paths = []
     if media_files:
         for media_file in media_files:
