@@ -17,7 +17,7 @@ WhatsApp Auto Message is a Python-based application designed to send bulk messag
 
 Clone the repository:
 
-     git clone https://github.com/yourusername/whatsapp-auto-message.git
+     git clone https://github.com/athulaugustine/WhatsApp-Auto-Message.git
    
 Navigate to the project directory:
 
