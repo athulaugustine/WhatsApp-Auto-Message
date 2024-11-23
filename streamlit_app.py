@@ -53,7 +53,7 @@ def send_whatsapp_message(driver, contact_number, message, media_paths):
         if media_paths:
             for media_path in media_paths:
                 attachment_btn = WebDriverWait(driver, 30).until(
-                    EC.element_to_be_clickable((By.XPATH, '//div[@title="Attach"]'))
+                    EC.element_to_be_clickable((By.XPATH, '//button[@title="Attach"]'))
                 )
                 attachment_btn.click()
                 time.sleep(3)
