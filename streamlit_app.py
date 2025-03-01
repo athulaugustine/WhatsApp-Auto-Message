@@ -27,7 +27,7 @@ def save_file_to_temp_directory(file, temp_dir):
 def is_logged_in(driver):
     try:
         # Check for an element that is only present after login
-        search_box = driver.find_element(By.XPATH, '//button[@aria-label="Search or start new chat"]')
+        search_box = driver.find_element(By.XPATH, '//button[@aria-label="Search or start new chat"]/div[2]')
         return search_box is not None
     except:
         return False    
@@ -36,7 +36,7 @@ def send_whatsapp_message(driver, contact_number, message, media_paths):
     try:
         # Wait for the 'New chat' button to be clickable
         new_chat_btn = WebDriverWait(driver, 30).until( 
-            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Search or start new chat"]'))
+            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Search or start new chat"]/div[2]'))
         )
         new_chat_btn.click()  # Click on 'New chat'
         time.sleep(3)
