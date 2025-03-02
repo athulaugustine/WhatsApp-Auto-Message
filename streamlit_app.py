@@ -10,6 +10,53 @@ import os
 from datetime import datetime
 import tempfile
 
+def save_google_contacts_csv(error_list):
+    print(error_list)
+    if not error_list:
+        st.info("No failed contacts to save.")
+        return
+    
+    # Define Google Contacts CSV columns
+    google_contacts_columns = [
+        "First Name", "Middle Name", "Last Name", "Phonetic First Name", "Phonetic Middle Name", "Phonetic Last Name",
+        "Name Prefix", "Name Suffix", "Nickname", "File As", "Organization Name", "Organization Title", "Organization Department",
+        "Birthday", "Notes", "Photo", "Labels", "Phone 1 - Label", "Phone 1 - Value"
+    ]
+    
+    contacts_data = []
+    for contact_number, customer_name  in error_list.items():
+        name_parts = customer_name.split()
+        first_name = name_parts[0] if len(name_parts) > 0 else ""
+        middle_name = name_parts[1] if len(name_parts) > 2 else ""
+        last_name = name_parts[2] if len(name_parts) > 2 else name_parts[1] if len(name_parts) == 2 else ""
+        
+        contacts_data.append([
+            first_name, middle_name, last_name, "", "", "", "", "", "", "", "", "", "", "", "", "", "* myContacts",
+            "Mobile", contact_number
+        ])
+    
+    df = pd.DataFrame(contacts_data, columns=google_contacts_columns)
+    
+    # Create directory if not exists
+    folder_path = "saved_contacts"
+    os.makedirs(folder_path, exist_ok=True)
+    
+    # Save as CSV
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    file_name = f"failed_contacts_{timestamp}.csv"
+    file_path = os.path.join(folder_path, file_name)
+    df.to_csv(file_path, index=False, encoding="utf-8-sig")
+    
+    # Provide download link in Streamlit
+    st.success(f"Failed contacts saved as Google Contacts CSV in {folder_path}!")
+    st.download_button(
+        label="Download Failed Contacts CSV",
+        data=df.to_csv(index=False, encoding="utf-8-sig"),
+        file_name=file_name,
+        mime="text/csv"
+    )
+
+
 def open_image_in_viewer(image_path):
     os.startfile(image_path)
 
@@ -75,9 +122,11 @@ def send_whatsapp_message(driver, contact_number, message, media_paths):
             message_box.send_keys(message)
             message_box.send_keys(Keys.ENTER)
             time.sleep(3)  # Wait for the message to be sent
-
+        print(f"Successfully sent to {contact_number}")    
+        return True
     except Exception as e:
-        st.error(f"Error sending message to {contact_number}: {e}")
+        print(f"Failed to send to {contact_number}")
+        return False
 
 # File uploader for Excel file
 customer_excel = st.file_uploader(
@@ -86,6 +135,7 @@ customer_excel = st.file_uploader(
 )
 
 if customer_excel:
+    error_list = {}
     # Read the Excel file
     data_df = pd.read_excel(customer_excel)
     # Filter relevant columns
@@ -147,11 +197,15 @@ if customer_excel:
                 try:
                     driver.refresh()
                     time.sleep(5)
-                    send_whatsapp_message(driver, contact_number, txt.format(customer_name=row['Customer Name']), media_paths)
+                    status = send_whatsapp_message(driver, contact_number, txt.format(customer_name=row['Customer Name']), media_paths)
+                    if status:
+                        pass
+                    else:
+                        error_list[contact_number] = row['Customer Name']
                 except Exception as e:
                     st.write(f"Failed to send message to {contact_number} ({row['Customer Name']})")
         driver.quit()
         st.success("Done!")
-
+        save_google_contacts_csv(error_list)
 # Running the Streamlit app:
 # Use the command: streamlit run your_script_name.py
